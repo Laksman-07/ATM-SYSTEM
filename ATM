@@ -1,0 +1,60 @@
+import mysql.connector
+global mydb
+mydb=mysql.connector.connect(host="localhost",user="root",passwd="12345678",database="new_schema")
+cur=mydb.cursor()
+def login(user_id,pin):
+    sql=("SELECT * FROM payroll WHERE username=%s AND password=%s")
+    val=(user_id,pin)
+    cur.execute(sql,val)
+    result=cur.fetchall()
+    if len(result)>0:
+        print("LOGIN SUCCESSFUL")
+        show()
+    else:
+        print("LOGIN FAILED DUE TO INVALID DETAILS")
+def balance(user_id,pin):
+    sql=("SELECT balance FROM payroll WHERE username=%s AND password=%s")
+    val=(user_id,pin)
+    cur.execute(sql,val)
+    for i in cur:
+        return(i[0])
+def withdraw(user_id,pin):
+    amount=float(input("ENTER AMOUNT TO WITHDRAW: "))
+    a=balance(user_id,pin)
+    b=a-amount
+    if(a>amount):
+        sql1=("UPDATE payroll SET balance=%s WHERE username=%s AND password=%s")
+        val1=(b,user_id,pin)
+        cur.execute(sql1,val1)
+        mydb.commit()
+    else:
+        print("AMOUNT REQUESTED IS HIGHER THAN YOUR BALANCE")
+    print(balance(user_id,pin))
+def deposit(user_id,pin):
+    amount=float(input("ENTER AMOUNT TO DEPOSIT: "))
+    a=balance(user_id,pin)
+    b=a+amount
+    sql2=("UPDATE payroll SET balance=%s WHERE username=%s AND password=%s")
+    val2=(b,user_id,pin)
+    cur.execute(sql2,val2)
+    mydb.commit()
+    print(balance(user_id,pin))
+
+def show():
+    choice=input("ENTER 1 TO CHECK BALANCE, 2 TO WITHDRAW MONEY, 3 TO DEPOSIT MONEY & 4 TO EXIT")
+    if(choice=="1"):
+        print("BALANCE:- ")
+        print(balance(user_id,pin))
+    elif(choice=="2"):
+        withdraw(user_id,pin)
+    elif(choice=="3"):
+        deposit(user_id,pin)
+    elif(choice=="4"):
+        print("EXITING")
+    else:
+        print("INVALID OPTION")
+   
+print(" ATM SYSTEM ")
+user_id=input("ENTER YOUR USER ID: ")
+pin=input("ENTER YOUR PIN: ")
+login(user_id,pin)
